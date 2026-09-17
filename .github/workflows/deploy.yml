@@ -19,7 +19,10 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /root/stroy-shop || git clone https://github.com/dastish1411/stroy-shop-backend.git /root/stroy-shop && cd /root/stroy-shop
+            if [ ! -d /root/stroy-shop/.git ]; then
+              git clone https://github.com/dastish1411/stroy-shop-backend.git /root/stroy-shop
+            fi
+            cd /root/stroy-shop
             git pull origin main
             docker compose -f docker-compose.prod.yml up -d --build
             docker compose -f docker-compose.prod.yml exec -T backend alembic upgrade head
