@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-
+from app.models.user import UserRole
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -18,6 +18,9 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/register", response_model=UserOut)
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
+    if user_data.role == UserRole.admin:
+        raise HTTPException(status_code=403, detail="Регистрация с ролью администратора недоступна")
+
     existing_user = get_user_by_email(db, user_data.email)
     if existing_user:
         raise HTTPException(status_code=400, detail="Пользователь с таким email уже существует")

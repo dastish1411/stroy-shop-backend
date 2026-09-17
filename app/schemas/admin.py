@@ -15,8 +15,8 @@ class SupplierSalesOut(BaseModel):
     total_sales: float
 
 
-class MonthlySalesOut(BaseModel):
-    month: str
+class DailySalesOut(BaseModel):
+    day: str
     supplier_id: int
     supplier_name: str
     total: float

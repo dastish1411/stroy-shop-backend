@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, get_current_admin
-from app.schemas.admin import AdminSummaryOut, SupplierSalesOut, MonthlySalesOut
+from app.schemas.admin import AdminSummaryOut, SupplierSalesOut, DailySalesOut
 from app.crud.admin import get_admin_summary
-from app.crud.payment import get_sales_by_supplier, get_monthly_sales_by_supplier
+from app.crud.payment import get_sales_by_supplier, get_daily_sales_by_supplier
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -19,6 +19,6 @@ def sales_by_supplier(db: Session = Depends(get_db)):
     return get_sales_by_supplier(db)
 
 
-@router.get("/monthly-sales", response_model=list[MonthlySalesOut], dependencies=[Depends(get_current_admin)])
-def monthly_sales(db: Session = Depends(get_db)):
-    return get_monthly_sales_by_supplier(db)
+@router.get("/daily-sales", response_model=list[DailySalesOut], dependencies=[Depends(get_current_admin)])
+def daily_sales(db: Session = Depends(get_db)):
+    return get_daily_sales_by_supplier(db)

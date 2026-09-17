@@ -95,25 +95,24 @@ def get_sales_by_supplier(db: Session):
         for r in results
     ]
 
-def get_monthly_sales_by_supplier(db: Session):
-    # group by месяц (обрезаем дату до месяца) и поставщик
+def get_daily_sales_by_supplier(db: Session):
     results = (
         db.query(
-            func.date_trunc("month", SupplierTransaction.created_at).label("month"),
+            func.date_trunc("day", SupplierTransaction.created_at).label("day"),
             Supplier.id.label("supplier_id"),
             Supplier.name.label("supplier_name"),
             func.sum(SupplierTransaction.amount).label("total"),
         )
         .join(Supplier, Supplier.id == SupplierTransaction.supplier_id)
         .filter(SupplierTransaction.type == TransactionType.sale)
-        .group_by("month", Supplier.id, Supplier.name)
-        .order_by("month")
+        .group_by("day", Supplier.id, Supplier.name)
+        .order_by("day")
         .all()
     )
 
     return [
         {
-            "month": r.month.strftime("%Y-%m"),
+            "day": r.day.strftime("%Y-%m-%d"),
             "supplier_id": r.supplier_id,
             "supplier_name": r.supplier_name,
             "total": float(r.total),
