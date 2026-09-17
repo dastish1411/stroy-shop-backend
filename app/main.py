@@ -9,7 +9,6 @@ app.add_middleware(
     allow_origins=[
     "http://127.0.0.1:5173",
     "http://localhost:5173",
-    "http://31.3.216.181:8020",
     "http://frontend-dastan.toolforge.rest",
 ],
     allow_credentials=True,
