@@ -1,6 +1,7 @@
+from conftest import create_admin_directly
+
+
 def register_and_login_supplier(client, email="supplier@example.com"):
-    # вспомогательная функция - НЕ тест сама по себе (не начинается с test_),
-    # просто переиспользуемый код для регистрации поставщика в других тестах
     client.post("/auth/register", json={
         "email": email,
         "password": "test123",
@@ -15,9 +16,6 @@ def register_and_login_supplier(client, email="supplier@example.com"):
 
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
-
-
-from conftest import create_admin_directly
 
 
 def create_test_category(client):
@@ -36,6 +34,7 @@ def create_test_category(client):
     }, headers=headers)
 
     return response.json()["id"]
+
 
 def test_supplier_can_create_product(client):
     headers = register_and_login_supplier(client)
@@ -56,7 +55,6 @@ def test_supplier_can_create_product(client):
 
 
 def test_client_cannot_create_product(client):
-    # регистрируем ОБЫЧНОГО клиента, а не поставщика
     client.post("/auth/register", json={
         "email": "client@example.com",
         "password": "test123",
@@ -79,14 +77,12 @@ def test_client_cannot_create_product(client):
         "unit": "kg",
     }, headers=headers)
 
-    # клиент НЕ должен иметь возможность создавать товары
     assert response.status_code == 403
 
 
 def test_supplier_cannot_edit_other_suppliers_product(client):
     category_id = create_test_category(client)
 
-    # первый поставщик создаёт товар
     headers1 = register_and_login_supplier(client, email="supplier1@example.com")
     create_response = client.post("/supplier/products", json={
         "name": "Товар поставщика 1",
@@ -97,7 +93,6 @@ def test_supplier_cannot_edit_other_suppliers_product(client):
     }, headers=headers1)
     product_id = create_response.json()["id"]
 
-    # второй поставщик пытается отредактировать чужой товар
     headers2 = register_and_login_supplier(client, email="supplier2@example.com")
     response = client.patch(f"/supplier/products/{product_id}", json={
         "price": 999,
@@ -122,6 +117,8 @@ def test_public_catalog_shows_products_without_auth(client):
     response = client.get("/products")
 
     assert response.status_code == 200
-    products = response.json()
-    assert len(products) == 1
-    assert products[0]["name"] == "Публичный товар"
+    data = response.json()
+    # ответ - это объект с пагинацией, сами товары лежат внутри "items"
+    assert data["total"] == 1
+    assert len(data["items"]) == 1
+    assert data["items"][0]["name"] == "Публичный товар"
