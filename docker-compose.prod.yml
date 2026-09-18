@@ -19,6 +19,8 @@ services:
       SECRET_KEY: ${SECRET_KEY}
       ALGORITHM: ${ALGORITHM}
       ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
+    volumes:
+      - ./logs:/app/logs
     ports:
       - "8010:8000"
 
