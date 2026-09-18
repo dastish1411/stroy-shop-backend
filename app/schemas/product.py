@@ -52,3 +52,10 @@ class ProductOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+class PaginatedProductsOut(BaseModel):
+    items: list[ProductOut]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int

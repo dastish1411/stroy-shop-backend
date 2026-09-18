@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, get_current_supplier
-from app.schemas.product import ProductCreate, ProductUpdate, ProductOut
+from app.schemas.product import ProductCreate, ProductUpdate, ProductOut, PaginatedProductsOut
 from app.crud.product import (
     get_products,
     get_product_by_id,
@@ -18,10 +18,14 @@ router = APIRouter(tags=["products"])
 
 # ---------- ПУБЛИЧНЫЙ КАТАЛОГ (доступен всем, без авторизации) ----------
 
-@router.get("/products", response_model=list[ProductOut])
-def list_products(category_id: int | None = None, db: Session = Depends(get_db)):
-    return get_products(db, category_id)
-
+@router.get("/products", response_model=PaginatedProductsOut)
+def list_products(
+    category_id: int | None = None,
+    page: int = 1,
+    page_size: int = 20,
+    db: Session = Depends(get_db),
+):
+    return get_products(db, category_id, page, page_size)
 
 @router.get("/products/{product_id}", response_model=ProductOut)
 def get_product(product_id: int, db: Session = Depends(get_db)):
